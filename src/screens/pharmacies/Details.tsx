@@ -38,11 +38,11 @@ export const PharmacyDetails = ({ navigation }: Props) => {
                         <CardPharmacy pharmacy={pharmacy} />
                     </View>
                     <View style={styles.map}>
-                        <Heading2 heading={'Map'} />
+                        <Heading2 heading={'Location'} />
                         <ViewMap />
                     </View>
-                    <View style={styles.issues}>
-                        <Heading2 heading={'Issues'} />
+                    <View style={styles.stock}>
+                        <Heading2 heading={'Meds'} />
                         <FlatList
                             data={[]}
                             numColumns={1}
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0',
         height: 250
     },
-    issues: {
+    stock: {
         
     }
 });
