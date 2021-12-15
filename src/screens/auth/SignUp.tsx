@@ -9,14 +9,11 @@ import { platform_styles } from '../../core/styles';
 import { Navigation } from '../../types';
 import { Title } from 'react-native-paper';
 import { theme } from '../../core/theme'
-
+import { nameValidator } from '../../helpers/nameValidator'
 import { usernameValidator } from '../../helpers/usernameValidator'
 import { passwordValidator } from '../../helpers/passwordValidator'
-import { AuthTasks } from '../../tasks/AuthTasks';
-import { UserTasks } from '../../tasks/UserTasks';
-import { AppStorage } from '../../core/utils';
-import { Session } from '../../models/Users';
 import { StatusBar } from 'react-native';
+import { db } from '../../../firebase';
 
 type Props = {
     navigation: Navigation;
@@ -27,6 +24,9 @@ export const SignUp = ({ navigation }: Props) => {
     const [isLoading, setLoading] = useState(false);
     const [platformTheme, setPlatFormTheme] = useState(platform_styles.web);
 
+    const [first_name, setFirstname] = useState({ value: '', error: '' })
+    const [last_name, setLastname] = useState({ value: '', error: '' })
+    const [phone, setUserphone] = useState({ value: '', error: '' })
     const [username, setUsername] = useState({ value: '', error: '' })
     const [password, setPassword] = useState({ value: '', error: '' })
     const [checked, setChecked] = React.useState(false);
@@ -44,40 +44,28 @@ export const SignUp = ({ navigation }: Props) => {
     }, []);
 
     const onLoginPressed = () => {
+        const firstnameError = nameValidator(first_name.value)
+        const lastnameError = nameValidator(last_name.value)
+        const phoneError = nameValidator(phone.value)
         const usernameError = usernameValidator(username.value)
         const passwordError = passwordValidator(password.value)
         if (usernameError || passwordError) {
+            setFirstname({ ...first_name, error: firstnameError })
+            setLastname({ ...last_name, error: lastnameError })
+            setUserphone({ ...phone, error: phoneError })
             setUsername({ ...username, error: usernameError })
             setPassword({ ...password, error: passwordError })
             return
         }
         setLoading(true);
-        AuthTasks.signIn({ username: username.value, password: password.value })
-            .then((res) => {
-                UserTasks.profile(res.data.access)
-                    .then((res_) => {
-                        let user = res_.data;
-                        user['access'] = res.data.access
-                        let session: Session = { status: true, user: user, timestamp: '' };
-                        AppStorage.storeObjectData('session', session)
-                            .then(() => {
-                                navigation.navigate('App', {});
-                            })
-                            .catch((er) => {
-                                console.error(er);
-                            })
-                    })
-                    .catch((er) => {
-                        // console.error('Error here', er);
-                        ToastAndroid.show('Wrong details', ToastAndroid.LONG);
-                        setLoading(false);
-                    })
-            })
-            .catch((er) => {
-                // console.error('Error here', er);
-                ToastAndroid.show('Wrong details', ToastAndroid.LONG);
-                setLoading(false);
-            })
+        db.collection("users").add({
+            'uname': username.value,
+            'pword': password.value
+        }).then((res)=>{            
+            ToastAndroid.show('Account created', ToastAndroid.LONG);
+        }).catch(()=>{
+            ToastAndroid.show('An error occured', ToastAndroid.LONG);
+        });
     }
 
     return (
@@ -100,20 +88,20 @@ export const SignUp = ({ navigation }: Props) => {
                             <TextInput
                                 label="First name"
                                 returnKeyType="next"
-                                value={username.value}
-                                onChangeText={(text: string) => setUsername({ value: text, error: '' })}
-                                error={!!username.error}
-                                errorText={username.error}
+                                value={first_name.value}
+                                onChangeText={(text: string) => setFirstname({ value: text, error: '' })}
+                                error={!!first_name.error}
+                                errorText={first_name.error}
                                 autoCapitalize="none"
                                 description="First name"
                             />
                             <TextInput
                                 label="Last name"
                                 returnKeyType="next"
-                                value={username.value}
-                                onChangeText={(text: string) => setUsername({ value: text, error: '' })}
-                                error={!!username.error}
-                                errorText={username.error}
+                                value={last_name.value}
+                                onChangeText={(text: string) => setLastname({ value: text, error: '' })}
+                                error={!!last_name.error}
+                                errorText={last_name.error}
                                 autoCapitalize="none"
                                 description="Last name"
                             />
@@ -124,6 +112,16 @@ export const SignUp = ({ navigation }: Props) => {
                                 onChangeText={(text: string) => setUsername({ value: text, error: '' })}
                                 error={!!username.error}
                                 errorText={username.error}
+                                autoCapitalize="none"
+                                description="Email"
+                            />
+                            <TextInput
+                                label="Phone"
+                                returnKeyType="next"
+                                value={phone.value}
+                                onChangeText={(text: string) => setUserphone({ value: text, error: '' })}
+                                error={!!phone.error}
+                                errorText={phone.error}
                                 autoCapitalize="none"
                                 description="Email"
                             />

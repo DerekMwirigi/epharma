@@ -24,10 +24,11 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.white,
         bpharmacyRadius: 8
     },
-    logo: { height: 100, width: 100, alignSelf: 'center' },
+    logo: { height: 100, width: 100, alignSelf: 'center'},
     details: {
         flex: 1,
-        flexDirection: 'column'
+        flexDirection: 'column',
+        padding: 3 
     },
     name: {
         fontSize: theme.fonts.font12,

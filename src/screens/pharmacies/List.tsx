@@ -11,6 +11,8 @@ import NoRecords from '../../components/views/NoRecords';
 import { Pharmacy } from '../../models/Pharmacy';
 import { PharmacyTasks } from '../../tasks/PharmacyTasks';
 import { AppUtils } from '../../utils/AppUtils';
+import { db } from '../../../firebase';
+// import { tb_pharmacies } from '../../../firebase';
 
 type Props = {
     navigation: Navigation;
@@ -19,26 +21,10 @@ export const PharmacyList = ({ navigation }: Props) => {
     const [isLoading, setLoading] = useState(true);
     const [platformTheme, setPlatFormTheme] = useState(platform_styles.web);
     const [user, setUser] = useState(null);
-    const [pharmacies, setPharmacies] = useState([
-            {name: 'Pharmacy 1', tag: 'Tred', phone: '020000', email: '', website: 'www.dsd.com', active: true, created_on: ''}, 
-            {name: 'Pharmacy 2', tag: 'Tred', phone: '020000', email: '', website: 'www.dsd.com', active: true, created_on: ''}, 
-            {name: 'Pharmacy 3', tag: 'Tred', phone: '020000', email: '', website: 'www.dsd.com', active: true, created_on: ''}, 
-        ]);
+    const [pharmacies, setPharmacies] = useState([]);
 
-    useEffect(() => {
-        setLoading(false);
-
-        AppStorage.getObjectData('session')
-            .then((session: Session) => {
-                session.user.role = 10;
-                setUser(session.user);
-                setLoading(false);
-                fetchPharmacies('', '', '', '');
-            })
-            .catch((error) => {
-                console.error(error)
-            });
-
+    useEffect(() => {      
+        fetchPharmacies();
         if (Platform.OS === 'web') {
             setPlatFormTheme(platform_styles.web);
         } else {
@@ -52,21 +38,16 @@ export const PharmacyList = ({ navigation }: Props) => {
         });
     }
 
-    const fetchPharmacies = (longitude: string, latitude: string, distance: string, query: string) => {
-        if (user != null) {
-            setLoading(true);
-            PharmacyTasks.list(longitude, latitude, distance, query)
-                .then((res) => {
-                    AppUtils.printLog(res);
-                    setPharmacies(res.data.results);
-                    setLoading(false);
-                })
-                .catch((er) => {
-                    console.error('Error here', er);
-                    ToastAndroid.show(er, ToastAndroid.LONG);
-                    setLoading(false);
+    const fetchPharmacies = () => {
+        setLoading(true);
+        db.collection("pharmacies").where("active", "==", true).onSnapshot((querySnapShop)=>{                
+            if(querySnapShop.size > 0){
+                querySnapShop.forEach((d)=>{
+                    pharmacies.push(d.data());
                 });
-        }
+                setLoading(false);
+            }
+        });
     }
 
     return (
@@ -76,26 +57,33 @@ export const PharmacyList = ({ navigation }: Props) => {
                 backgroundColor={theme.colors.primary}
                 barStyle={'default'}
                 hidden={false} />
-            <View style={styles.content}>
-                    {(pharmacies.length > 0) ? <FlatList
-                        data={pharmacies}
-                        numColumns={1}
-                        renderItem={({ item }) => (
-                            <TouchableRipple
-                                onPress={() => pharmacyClickHandler(item)}
-                                rippleColor="rgba(0, 0, 0, .32)">
-                                <CardPharmacy pharmacy={item} />
-                            </TouchableRipple>
+                {isLoading ? <ActivityIndicator size="large"
+                    color={theme.colors.white}
+                    style={platform_styles.activityIndicator} /> : (
+                    <View style={styles.content}>
+                        {(pharmacies.length > 0) ? <FlatList
+                            data={pharmacies}
+                            numColumns={1}
+                            renderItem={({ item }) => (
+                                <TouchableRipple
+                                    onPress={() => pharmacyClickHandler(item)}
+                                    rippleColor="rgba(0, 0, 0, .32)">
+                                    <CardPharmacy pharmacy={item} />
+                                </TouchableRipple>
+                            )}
+                        /> : (
+                            <NoRecords message={'Sorry no records found'} />
                         )}
-                    /> : (
-                        <NoRecords message={'Sorry no records found'} />
+                    </View>
                     )}
-                </View>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    action_bar: {
+        backgroundColor: theme.colors.primary
+    },
     container: {
         flex: 1,
         justifyContent: 'center',

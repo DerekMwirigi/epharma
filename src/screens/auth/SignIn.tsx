@@ -17,6 +17,8 @@ import { UserTasks } from '../../tasks/UserTasks';
 import { AppStorage } from '../../core/utils';
 import { Session } from '../../models/Users';
 import { StatusBar } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import { db } from '../../../firebase';
 
 type Props = {
     navigation: Navigation;
@@ -43,50 +45,32 @@ export const SignIn = ({ navigation }: Props) => {
         }
     }, []);
 
-    const onLoginPressed = () => {
+    const onLoginPressed = async () => {
         const usernameError = usernameValidator(username.value)
         const passwordError = passwordValidator(password.value)
         if (usernameError || passwordError) {
             setUsername({ ...username, error: usernameError })
             setPassword({ ...password, error: passwordError })
             return
-        }
+        }        
         setLoading(true);
-        let session: Session = { status: true, user: {name: 'Derek', first_name: 'Derek', last_name: 'Mugambi', username: 'derek', access: 10}, timestamp: '' };
-        AppStorage.storeObjectData('session', session)
-            .then(() => {
-                navigation.navigate('App', {});
-                setLoading(false);
-            })
-            .catch((er) => {
-                console.error(er);
-            })
-        // AuthTasks.signIn({ username: username.value, password: password.value })
-        //     .then((res) => {
-        //         UserTasks.profile(res.data.access)
-        //             .then((res_) => {
-        //                 let user = res_.data;
-        //                 user['access'] = res.data.access
-        //                 let session: Session = { status: true, user: user, timestamp: '' };
-        //                 AppStorage.storeObjectData('session', session)
-        //                     .then(() => {
-        //                         navigation.navigate('App', {});
-        //                     })
-        //                     .catch((er) => {
-        //                         console.error(er);
-        //                     })
-        //             })
-        //             .catch((er) => {
-        //                 // console.error('Error here', er);
-        //                 ToastAndroid.show('Wrong details', ToastAndroid.LONG);
-        //                 setLoading(false);
-        //             })
-        //     })
-        //     .catch((er) => {
-        //         // console.error('Error here', er);
-        //         ToastAndroid.show('Wrong details', ToastAndroid.LONG);
-        //         setLoading(false);
-        //     })
+        db.collection("users").where("uname", "==", username.value).where("pword", "==", password.value).onSnapshot((querySnapShop)=>{
+            if(querySnapShop.size == 1){
+                querySnapShop.forEach((d)=>{
+                    let session: Session = { status: true, user: d.data(), timestamp: '' };
+                    AppStorage.storeObjectData('session', session)
+                        .then(() => {
+                            navigation.navigate('App', {});
+                        })
+                        .catch((er) => {
+                            console.error(er);
+                        })
+                });
+            }else{
+                ToastAndroid.show('Wrong details', ToastAndroid.LONG);
+            }
+            setLoading(false);
+        });
     }
 
     return (
