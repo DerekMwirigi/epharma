@@ -14,6 +14,8 @@ import { usernameValidator } from '../../helpers/usernameValidator'
 import { passwordValidator } from '../../helpers/passwordValidator'
 import { StatusBar } from 'react-native';
 import { db } from '../../../firebase';
+import { AppStorage } from '../../core/utils';
+import { Session } from '../../models/Users';
 
 type Props = {
     navigation: Navigation;
@@ -58,14 +60,30 @@ export const SignUp = ({ navigation }: Props) => {
             return
         }
         setLoading(true);
-        db.collection("users").add({
+        let user = {
             'uname': username.value,
-            'pword': password.value
-        }).then((res)=>{            
+            'pword': password.value,
+            'email': username.value,
+            'first_name': first_name.value,
+            'last_name': last_name.value,
+            'phone': phone.value,
+            'status': true,
+            'role': 1
+        };
+        db.collection("users").add(user).then((res)=>{     
+            let session: Session = { status: true, user: user, timestamp: '' };
+            AppStorage.storeObjectData('session', session)
+                .then(() => {
+                    navigation.navigate('App', {});
+                })
+                .catch((er) => {
+                    console.error(er);
+                })
             ToastAndroid.show('Account created', ToastAndroid.LONG);
         }).catch(()=>{
             ToastAndroid.show('An error occured', ToastAndroid.LONG);
         });
+        setLoading(false);
     }
 
     return (
@@ -123,7 +141,7 @@ export const SignUp = ({ navigation }: Props) => {
                                 error={!!phone.error}
                                 errorText={phone.error}
                                 autoCapitalize="none"
-                                description="Email"
+                                description="Phone"
                             />
                             <TextInput
                                 label="Password"
@@ -135,15 +153,6 @@ export const SignUp = ({ navigation }: Props) => {
                                 secureTextEntry
                                 description="Password"
                             />
-
-                            {/* <Checkbox.Item
-                            label="Show password"
-                            status={checked ? 'checked' : 'unchecked'}
-                            onPress={() => {
-                                setChecked(!checked);
-                            }}
-                            style={styles.showPassword}
-                        /> */}
 
                             <Button style={{ marginTop: 10, fontWeight: 'bold' }} mode="contained" onPress={onLoginPressed}>
                                 Sign up

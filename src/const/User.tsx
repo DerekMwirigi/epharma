@@ -17,6 +17,8 @@ const place_holder_url = '';
 
 export const USER_ACTION_OPTIONS = {
     "USERS": [
-        { id: 10, label: 'Help', icon: '', screen: 'HelpIndex' },
+        { id: 1, label: 'Pharmacies', icon: 'favicon.png', screen: 'PharmacyList' },
+        { id: 1, label: 'Profile', icon: 'profile.png', screen: 'UserProfile' },
+        // { id: 2, label: 'Help', icon: 'help', screen: 'HelpIndex' },
     ]
 }

@@ -2,17 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, ActivityIndicator, FlatList, View, SafeAreaView, StatusBar, ToastAndroid } from 'react-native';
 import { platform_styles } from '../../core/styles';
 import { Navigation } from '../../types';
-import { Session, User } from '../../models/Users';
-import { AppStorage } from '../../core/utils';
 import { theme } from '../../core/theme';
-import { TouchableRipple } from 'react-native-paper';
+import { TextInput, TouchableRipple } from 'react-native-paper';
 import CardPharmacy from '../../components/cards/pharmacy/CardPharmacy';
 import NoRecords from '../../components/views/NoRecords';
 import { Pharmacy } from '../../models/Pharmacy';
-import { PharmacyTasks } from '../../tasks/PharmacyTasks';
-import { AppUtils } from '../../utils/AppUtils';
 import { db } from '../../../firebase';
-// import { tb_pharmacies } from '../../../firebase';
 
 type Props = {
     navigation: Navigation;
@@ -20,7 +15,7 @@ type Props = {
 export const PharmacyList = ({ navigation }: Props) => {
     const [isLoading, setLoading] = useState(true);
     const [platformTheme, setPlatFormTheme] = useState(platform_styles.web);
-    const [user, setUser] = useState(null);
+    const [searchTearm, setSearchTearm] = useState('')
     const [pharmacies, setPharmacies] = useState([]);
 
     useEffect(() => {      
@@ -42,13 +37,32 @@ export const PharmacyList = ({ navigation }: Props) => {
         setLoading(true);
         db.collection("pharmacies").where("active", "==", true).onSnapshot((querySnapShop)=>{                
             if(querySnapShop.size > 0){
+                let pharmacies_:any = [];
                 querySnapShop.forEach((d)=>{
-                    pharmacies.push(d.data());
+                    pharmacies_.push(d.data());
                 });
+                setPharmacies(pharmacies_);
                 setLoading(false);
             }
         });
     }
+
+    const searchPharmacies = (text: string) => {
+        setSearchTearm(text);
+        // setLoading(true);
+        db.collection("pharmacies").where('name', '>=', searchTearm).where('name', '<=', searchTearm + '~').onSnapshot((querySnapShop)=>{                
+            if(querySnapShop.size > 0){
+                let pharmacies_:any = [];
+                querySnapShop.forEach((d)=>{
+                    pharmacies_.push(d.data());
+                });
+                setPharmacies(pharmacies_);
+                // setLoading(false);
+            }
+        });
+        
+    }
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -61,6 +75,13 @@ export const PharmacyList = ({ navigation }: Props) => {
                     color={theme.colors.white}
                     style={platform_styles.activityIndicator} /> : (
                     <View style={styles.content}>
+                        <TextInput
+                            style={styles.tb_search}
+                            onChangeText={(text) => searchPharmacies(text)}
+                            value={searchTearm}
+                            underlineColorAndroid="transparent"
+                            placeholder="Search pharmacy"
+                        />
                         {(pharmacies.length > 0) ? <FlatList
                             data={pharmacies}
                             numColumns={1}
@@ -81,8 +102,13 @@ export const PharmacyList = ({ navigation }: Props) => {
 };
 
 const styles = StyleSheet.create({
-    action_bar: {
-        backgroundColor: theme.colors.primary
+    tb_search: {
+        height: 40,
+        borderWidth: 1,
+        paddingLeft: 20,
+        margin: 5,
+        borderColor: '#009688',
+        backgroundColor: '#FFFFFF',
     },
     container: {
         flex: 1,

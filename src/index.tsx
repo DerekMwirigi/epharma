@@ -8,6 +8,7 @@ import { SignIn } from './screens/auth/SignIn';
 import { Splash } from './screens/splash/Splash';
 import { theme } from './core/theme';
 import { PharmacyDetails } from './screens/pharmacies/Details';
+import { Landing } from './screens/landing/Landing';
 
 const StarpupStack = createStackNavigator({
   // splash 
@@ -40,6 +41,18 @@ const AuthStack = createStackNavigator({
 
 const AppStack = createStackNavigator(
   {
+    // landing 
+    Landing: {
+      screen: Landing,
+      navigationOptions: {
+        headerShown: false,
+        title: 'Landing',
+        headerTintColor: theme.colors.white,
+        headerStyle: {
+          backgroundColor: theme.colors.primary,
+        },
+      }
+    },
     // pharmacy list 
     PharmacyList: {
       screen: PharmacyList,
@@ -79,7 +92,7 @@ const AppStack = createStackNavigator(
       }
     },
   }, {
-    initialRouteName: 'PharmacyList',
+    initialRouteName: 'Landing',
   }
 );
 
