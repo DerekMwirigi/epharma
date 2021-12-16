@@ -13,7 +13,7 @@ const CardUser = ({ user, onPressHandler }) => (
                     <Title style={{
                         fontSize: 15, alignContent: 'center', alignSelf: 'center', textAlign: 'center', textTransform: 'uppercase', alignItems: 'center', fontWeight: 'bold', justifyContent: 'center',
                         backgroundColor: theme.colors.primary, borderRadius: 15, color: '#FFF', height: 30, width: 30,
-                    }}>{user.first_name.split(', ')[0].charAt(0)}{(user.first_name.split(' ').length > 1) ? user.first_name.split(' ')[1].charAt(0) : ''}</Title>
+                    }}>{user.first_name.charAt(0)}{user.last_name.charAt(0)}</Title>
                 </View>
                 <Title style={{ fontSize: 15, alignSelf: 'center', paddingLeft: 10, textAlign: 'left', fontWeight: 'bold' }}>{user.first_name} {user.last_name}</Title>
             </View>

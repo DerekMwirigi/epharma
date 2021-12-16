@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
         height: '77.8%',
         flex: 1,
         flexDirection: 'column',
-        marginTop: 0
+        marginTop: 0,
     },
     action_btns: {
         height: '20%',
