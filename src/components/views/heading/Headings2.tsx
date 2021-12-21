@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Title } from 'react-native-paper';
+import { theme } from '../../../core/theme';
 
 export const Heading2 = ({ heading }) => {
     return (
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
         fontSize: 13
     },
     border: {
-        borderBottomColor: '#F9A800',
+        borderBottomColor: theme.colors.primary,
         borderBottomWidth: 0.5,
         marginLeft: '30%',
         marginRight: '30%' 

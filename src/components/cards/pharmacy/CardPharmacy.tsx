@@ -17,18 +17,18 @@ const CardPharmacy = ({ pharmacy }) => (
 
 const styles = StyleSheet.create({
     card: {
-        flex: 2,
+        flex: 1,
         flexDirection: 'row',
-        margin: 2,
-        padding: 15,
+        margin: 10,
+        padding: 2,
         backgroundColor: theme.colors.white,
-        bpharmacyRadius: 8
+        borderRadius: 8
     },
-    logo: { height: 100, width: 100, alignSelf: 'center'},
+    logo: { height: 80, width: 80, alignSelf: 'center', marginRight: 5},
     details: {
         flex: 1,
         flexDirection: 'column',
-        padding: 3 
+        padding: 1
     },
     name: {
         fontSize: theme.fonts.font12,

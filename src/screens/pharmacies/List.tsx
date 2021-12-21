@@ -75,13 +75,13 @@ export const PharmacyList = ({ navigation }: Props) => {
                     color={theme.colors.white}
                     style={platform_styles.activityIndicator} /> : (
                     <View style={styles.content}>
-                        <TextInput
+                        {/* <TextInput
                             style={styles.tb_search}
                             onChangeText={(text) => searchPharmacies(text)}
                             value={searchTearm}
                             underlineColorAndroid="transparent"
                             placeholder="Search pharmacy"
-                        />
+                        /> */}
                         {(pharmacies.length > 0) ? <FlatList
                             data={pharmacies}
                             numColumns={1}
